@@ -1,7 +1,8 @@
 {
     "name": "justbetter/magento2-product-grid-export",
-    "description": "Add the export grid button to your product grid!",
     "type": "magento2-module",
+    "description": "Add the export grid button to your product grid!",
+    "license": "MIT",
     "authors": [
         {
             "name": "Indy Koning",
@@ -9,11 +10,11 @@
         }
     ],
     "autoload": {
-        "files": [
-            "registration.php"
-        ],
         "psr-4": {
             "JustBetter\\ProductGridExport\\": ""
-        }
+        },
+        "files": [
+            "registration.php"
+        ]
     }
 }
