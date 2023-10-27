@@ -2,7 +2,12 @@
 
 namespace JustBetter\ProductGridExport\Model\Export;
 
+use Magento\Framework\Convert\ExcelFactory;
+use Magento\Framework\Filesystem;
+use Magento\Ui\Component\MassAction\Filter;
 use Magento\Ui\Model\Export\ConvertToXml;
+use Magento\Ui\Model\Export\MetadataProvider;
+use Magento\Ui\Model\Export\SearchResultIteratorFactory;
 
 class ConvertToXls extends ConvertToXml
 {
@@ -24,7 +29,9 @@ class ConvertToXls extends ConvertToXml
         $this->filter->applySelectionOnTargetProvider();
         $dataProvider = $component->getContext()->getDataProvider();
 
-        $searchResult = $dataProvider->getSearchResult();
+        // Force all results
+        $searchResult = $dataProvider->getSearchResult()->setCurPage(1)
+            ->setPageSize(0);
 
         $searchResultItems = $searchResult->getItems();
         $searchResultIterator = $this->iteratorFactory->create(['items' => $searchResultItems]);

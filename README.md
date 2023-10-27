@@ -17,7 +17,7 @@ composer require justbetter/magento2-product-grid-export
 ## Usage
 
 After installation the export button will be shown next to the "Columns" dropdown on the product grid.
-Simply select the products you want to export and the format you want to export (Currently only CSV is supported).
+Simply select the products you want to export and the format you want to export.
 
 ## Credits
 
