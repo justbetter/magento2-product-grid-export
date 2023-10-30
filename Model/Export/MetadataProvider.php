@@ -60,19 +60,33 @@ class MetadataProvider extends \Magento\Ui\Model\Export\MetadataProvider
             $activeColumns = $this->getActiveColumns($component);
 
             $columns = $this->getColumnsComponent($component);
-            foreach ($columns->getChildComponents() as $column) {
-                if ($column->getData('config/label') && $column->getData('config/dataType') !== 'actions') {
-                    if(in_array($column->getName(), $activeColumns)) {
-                        $this->columns[$component->getName()][$column->getName()] = $column;
-                    }
+            $components = $columns->getChildComponents();
+
+            foreach ($activeColumns as $columnName) {
+                $column = $components[$columnName] ?? null;
+
+                if (isset($column) && $column->getData('config/label') && $column->getData('config/dataType') !== 'actions') {
+                    $this->columns[$component->getName()][$column->getName()] = $column;
                 }
             }
         }
+
         return $this->columns[$component->getName()];
     }
 
 
     public function getRowData($document, $fields, $options): array{
-        return array_values(array_map(fn($field) => is_array($value = $document->getData($field)) ? implode(', ', $value) : $value, $fields));
+        return array_values(array_map(fn($field) => $this->getColumnData($document, $field), $fields));
+    }
+
+    public function getColumnData($document, $field)
+    {
+        $value = $document->getData($field);
+
+        if (is_array($value)) {
+            return implode(', ', $value);
+        }
+
+        return $value;
     }
 }

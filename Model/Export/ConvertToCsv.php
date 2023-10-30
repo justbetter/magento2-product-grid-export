@@ -2,6 +2,7 @@
 
 namespace JustBetter\ProductGridExport\Model\Export;
 
+use JustBetter\ProductGridExport\Model\LazySearchResultIterator;
 use Magento\Framework\Exception\LocalizedException;
 
 class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
@@ -29,19 +30,14 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         $stream->writeCsv($this->metadataProvider->getHeaders($component));
         $page = 1;
 
-        $searchResult = $dataProvider->getSearchResult();
-        $searchCriteria = $searchResult
+        $searchResult = $dataProvider->getSearchResult()
             ->setCurPage($page)
-            ->setPageSize($this->pageSize);
-        $totalCount = (int) $searchResult->getSize();
-        while ($totalCount > 0) {
-            $items = $searchResult->getItems();
-            foreach ($items as $item) {
-                $this->metadataProvider->convertDate($item, $component->getName());
-                $stream->writeCsv($this->metadataProvider->getRowData($item, $fields, []));
-            }
-            $searchCriteria->setCurPage(++$page);
-            $totalCount = $totalCount - $this->pageSize;
+            ->setPageSize(5); // $this->pageSize
+
+        $items = LazySearchResultIterator::getGenerator($searchResult);
+        foreach ($items as $item) {
+            $this->metadataProvider->convertDate($item, $component->getName());
+            $stream->writeCsv($this->metadataProvider->getRowData($item, $fields, []));
         }
 
         $stream->unlock();

@@ -2,6 +2,7 @@
 
 namespace JustBetter\ProductGridExport\Model\Export;
 
+use JustBetter\ProductGridExport\Model\LazySearchResultIterator;
 use Magento\Framework\Convert\ExcelFactory;
 use Magento\Framework\Filesystem;
 use Magento\Ui\Component\MassAction\Filter;
@@ -30,13 +31,12 @@ class ConvertToXls extends ConvertToXml
         $dataProvider = $component->getContext()->getDataProvider();
 
         // Force all results
-        $searchResult = $dataProvider->getSearchResult()->setCurPage(1)
-            ->setPageSize(0);
+        $searchResult = $dataProvider->getSearchResult()
+            ->setCurPage(1)
+            ->setPageSize($this?->pageSize ?? 200);
 
-        $searchResultItems = $searchResult->getItems();
-        $searchResultIterator = $this->iteratorFactory->create(['items' => $searchResultItems]);
         $excel = $this->excelFactory->create([
-            'iterator' => $searchResultIterator,
+            'iterator' => LazySearchResultIterator::getGenerator($searchResult),
             'rowCallback'=> [$this, 'getRowData'],
         ]);
 
