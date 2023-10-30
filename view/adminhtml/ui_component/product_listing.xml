@@ -14,8 +14,13 @@
                             <item name="label" xsi:type="string" translate="true">CSV</item>
                             <item name="url" xsi:type="string">productgridexport/export/gridToCsv</item>
                         </item>
-                        <item name="xml" active="false" xsi:type="array">
-                            <item name="value" xsi:type="string">null</item>
+                        <item name="xml" xsi:type="array">
+                            <item name="value" xsi:type="string">xml</item>
+                            <item name="label" xsi:type="string" translate="true">Excel XML</item>
+                            <item name="url" xsi:type="string">productgridexport/export/gridToXml</item>
+                        </item>
+                        <item name="xls" xsi:type="array">
+                            <item name="value" xsi:type="string">xls</item>
                             <item name="label" xsi:type="string" translate="true">Excel XLS</item>
                             <item name="url" xsi:type="string">productgridexport/export/gridToXls</item>
                         </item>

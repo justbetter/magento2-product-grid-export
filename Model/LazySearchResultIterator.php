@@ -11,9 +11,6 @@ class LazySearchResultIterator implements Iterator
 
     protected $generator;
 
-    protected $current;
-    protected $i;
-
     public function __construct(AbstractCollection $collection) {
         $this->generator = static::getGenerator($collection);
     }
