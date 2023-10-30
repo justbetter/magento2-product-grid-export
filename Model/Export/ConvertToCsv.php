@@ -32,7 +32,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
 
         $searchResult = $dataProvider->getSearchResult()
             ->setCurPage($page)
-            ->setPageSize(5); // $this->pageSize
+            ->setPageSize($this?->pageSize ?? 200);
 
         $items = LazySearchResultIterator::getGenerator($searchResult);
         foreach ($items as $item) {
