@@ -2,46 +2,45 @@
 
 namespace JustBetter\ProductGridExport\Model\Export;
 
-use Magento\Framework\View\Element\UiComponentInterface;
-use Magento\Ui\Component\MassAction\Filter;
+use Exception;
+use JustBetter\ProductGridExport\Helper\QuantityPerSource;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Api\Search\DocumentInterface;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Framework\View\Element\UiComponentInterface;
+use Magento\Ui\Component\Listing;
+use Magento\Ui\Component\MassAction\Filter;
 use Magento\Ui\Model\BookmarkManagement;
+use Magento\Ui\Model\Export\MetadataProvider as MagentoMetadataProvider;
 
-class MetadataProvider extends \Magento\Ui\Model\Export\MetadataProvider
+class MetadataProvider extends MagentoMetadataProvider
 {
-    /**
-     * @var BookmarkManagement
-     */
-    protected $_bookmarkManagement;
-
-    /**
-     * MetadataProvider constructor.
-     * @param Filter $filter
-     * @param TimezoneInterface $localeDate
-     * @param ResolverInterface $localeResolver
-     * @param string $dateFormat
-     * @param BookmarkManagement $bookmarkManagement
-     * @param array $data
-     */
     public function __construct(
         Filter $filter,
         TimezoneInterface $localeDate,
         ResolverInterface $localeResolver,
-        BookmarkManagement $bookmarkManagement,
+        protected BookmarkManagement $bookmarkManagement,
+        protected QuantityPerSource $quantityPerSource,
         $dateFormat = 'M j, Y H:i:s A',
         array $data = [])
     {
-        parent::__construct($filter, $localeDate, $localeResolver, $dateFormat, $data);
-        $this->_bookmarkManagement = $bookmarkManagement;
+        parent::__construct(
+            $filter,
+            $localeDate,
+            $localeResolver,
+            $dateFormat,
+            $data
+        );
     }
 
-    protected function getActiveColumns($component){
-        $bookmark = $this->_bookmarkManagement->getByIdentifierNamespace('current', $component->getName());
+    protected function getActiveColumns(Listing $component): array
+    {
+        $bookmark = $this->bookmarkManagement->getByIdentifierNamespace('current', $component->getName());
 
         $config = $bookmark->getConfig();
         // Remove all invisible columns as well as ids, and actions columns.
-        $columns = array_filter($config['current']['columns'], fn($config, $key) => $config['visible'] && !in_array($key, ['ids', 'actions']), ARRAY_FILTER_USE_BOTH);;
+        $columns = array_filter($config['current']['columns'], fn($config, $key) => $config['visible'] && !in_array($key, ['ids', 'actions']), ARRAY_FILTER_USE_BOTH);
         // Sort by position in grid.
         uksort($columns, fn($a, $b) => $config['current']['positions'][$a] <=> $config['current']['positions'][$b]);
 
@@ -49,11 +48,10 @@ class MetadataProvider extends \Magento\Ui\Model\Export\MetadataProvider
     }
 
     /**
-     * @param UiComponentInterface $component
      * @return UiComponentInterface[]
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function getColumns(UiComponentInterface $component) : array
+    protected function getColumns(UiComponentInterface $component): array
     {
         if (!isset($this->columns[$component->getName()])) {
 
@@ -74,14 +72,19 @@ class MetadataProvider extends \Magento\Ui\Model\Export\MetadataProvider
         return $this->columns[$component->getName()];
     }
 
-
-    public function getRowData($document, $fields, $options): array{
+    public function getRowData(DocumentInterface|Product $document, $fields, $options): array
+    {
         return array_values(array_map(fn($field) => $this->getColumnData($document, $field), $fields));
     }
 
-    public function getColumnData($document, $field)
+    public function getColumnData(DocumentInterface|Product $document, string $field): string
     {
         $value = $document->getData($field);
+        $sku = $document->getData('sku');
+
+        if ($field == 'quantity_per_source' && $sku !== null) {
+            $value = $this->quantityPerSource->execute($sku);
+        }
 
         if (is_array($value)) {
             return implode(', ', $value);
