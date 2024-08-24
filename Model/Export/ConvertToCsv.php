@@ -28,6 +28,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         $stream = $this->directory->openFile($file, 'w+');
         $stream->lock();
         $stream->writeCsv($this->metadataProvider->getHeaders($component));
+        $columnsWithType= $this->metadataProvider->getColumnsWithDataType($component);
         $page = 1;
 
         $searchResult = $dataProvider->getSearchResult()
@@ -37,7 +38,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
         $items = LazySearchResultIterator::getGenerator($searchResult);
         foreach ($items as $item) {
             $this->metadataProvider->convertDate($item, $component->getName());
-            $stream->writeCsv($this->metadataProvider->getRowData($item, $fields, []));
+            $stream->writeCsv($this->metadataProvider->getRowDataBasedOnColumnType($item, $fields, $columnsWithType, []));
         }
 
         $stream->unlock();
