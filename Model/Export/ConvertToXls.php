@@ -13,6 +13,10 @@ use Magento\Ui\Model\Export\SearchResultIteratorFactory;
 class ConvertToXls extends ConvertToXml
 {
 
+    protected $fields;
+    
+    protected $columnsWithType;
+
     /**
      * Returns XLS file
      *
@@ -30,6 +34,9 @@ class ConvertToXls extends ConvertToXml
         $this->filter->applySelectionOnTargetProvider();
         $dataProvider = $component->getContext()->getDataProvider();
 
+        $this->columnsWithType= $this->metadataProvider->getColumnsWithDataType($component);
+        $this->fields = $this->metadataProvider->getFields($this->filter->getComponent());
+
         // Force all results
         $searchResult = $dataProvider->getSearchResult()
             ->setCurPage(1)
@@ -37,7 +44,7 @@ class ConvertToXls extends ConvertToXml
 
         $excel = $this->excelFactory->create([
             'iterator' => LazySearchResultIterator::getGenerator($searchResult),
-            'rowCallback'=> [$this, 'getRowData'],
+            'rowCallback'=> [$this, 'getRowDataBasedOnColumnType'],
         ]);
 
         $this->directory->create('export');
@@ -54,6 +61,10 @@ class ConvertToXls extends ConvertToXml
             'value' => $file,
             'rm' => true  // can delete file after use
         ];
+    }
+
+    public function getRowDataBasedOnColumnType($item) {
+        return $this->metadataProvider->getRowDataBasedOnColumnType($item, $this->fields, $this->columnsWithType, []);
     }
 
     public function getRowData($item) : array{

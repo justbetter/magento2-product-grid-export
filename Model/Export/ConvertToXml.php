@@ -12,6 +12,9 @@ use Magento\Ui\Model\Export\SearchResultIteratorFactory;
 
 class ConvertToXml extends ParentConvertToXml
 {
+    protected $fields;
+
+    protected $columnsWithType;
 
     /**
      * Returns XML file
@@ -30,6 +33,10 @@ class ConvertToXml extends ParentConvertToXml
         $this->filter->applySelectionOnTargetProvider();
         $dataProvider = $component->getContext()->getDataProvider();
 
+        $this->columnsWithType= $this->metadataProvider->getColumnsWithDataType($component);
+        $this->fields = $this->metadataProvider->getFields($this->filter->getComponent());
+
+
         // Force all results
         $searchResult = $dataProvider->getSearchResult()
             ->setCurPage(1)
@@ -37,9 +44,8 @@ class ConvertToXml extends ParentConvertToXml
 
         $excel = $this->excelFactory->create([
             'iterator' => LazySearchResultIterator::getGenerator($searchResult),
-            'rowCallback'=> [$this, 'getRowData'],
+            'rowCallback'=> [$this, 'getRowDataBasedOnColumnType'],
         ]);
-
         $this->directory->create('export');
         $stream = $this->directory->openFile($file, 'w+');
         $stream->lock();
@@ -54,6 +60,10 @@ class ConvertToXml extends ParentConvertToXml
             'value' => $file,
             'rm' => true  // can delete file after use
         ];
+    }
+
+    public function getRowDataBasedOnColumnType($item) {
+        return $this->metadataProvider->getRowDataBasedOnColumnType($item, $this->fields, $this->columnsWithType, []);
     }
 
     public function getRowData($item) : array{
