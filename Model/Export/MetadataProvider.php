@@ -58,7 +58,7 @@ class MetadataProvider extends \Magento\Ui\Model\Export\MetadataProvider
 
         $config = $bookmark->getConfig();
         // Remove all invisible columns as well as ids, and actions columns.
-        $columns = array_filter($config['current']['columns'], fn($config, $key) => $config['visible'] && !in_array($key, ['ids', 'actions']), ARRAY_FILTER_USE_BOTH);;
+        $columns = array_filter($config['current']['columns'], fn($config, $key) => $config['visible'] && !in_array($key, ['ids', 'actions']), ARRAY_FILTER_USE_BOTH);
         // Sort by position in grid.
         uksort($columns, fn($a, $b) => $config['current']['positions'][$a] <=> $config['current']['positions'][$b]);
 
