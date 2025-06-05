@@ -5,6 +5,11 @@
             <argument name="metadataProvider" xsi:type="object">JustBetter\ProductGridExport\Model\Export\MetadataProvider</argument>
         </arguments>
     </type>
+    <type name="JustBetter\ProductGridExport\Model\Export\ConvertToJsonl">
+        <arguments>
+            <argument name="metadataProvider" xsi:type="object">JustBetter\ProductGridExport\Model\Export\MetadataProvider</argument>
+        </arguments>
+    </type>
     <type name="JustBetter\ProductGridExport\Model\Export\ConvertToXml">
         <arguments>
             <argument name="metadataProvider" xsi:type="object">JustBetter\ProductGridExport\Model\Export\MetadataProvider</argument>

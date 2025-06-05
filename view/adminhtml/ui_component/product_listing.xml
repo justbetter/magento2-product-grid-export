@@ -24,6 +24,11 @@
                             <item name="label" xsi:type="string" translate="true">Excel XLS</item>
                             <item name="url" xsi:type="string">productgridexport/export/gridToXls</item>
                         </item>
+                        <item name="jsonl" xsi:type="array">
+                            <item name="value" xsi:type="string">jsonl</item>
+                            <item name="label" xsi:type="string" translate="true">JSONL</item>
+                            <item name="url" xsi:type="string">productgridexport/export/gridToJsonl</item>
+                        </item>
                     </item>
                 </item>
             </argument>

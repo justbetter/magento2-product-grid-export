@@ -16,5 +16,8 @@
         "files": [
             "registration.php"
         ]
+    },
+    "require": {
+        "indykoning/php-jsonl": "^1.0"
     }
 }

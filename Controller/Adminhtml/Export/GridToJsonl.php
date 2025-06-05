@@ -2,14 +2,15 @@
 
 namespace JustBetter\ProductGridExport\Controller\Adminhtml\Export;
 
+use Indykoning\Jsonl\Jsonl;
+use JustBetter\ProductGridExport\Model\Export\ConvertToJsonl;
+use JustBetter\ProductGridExport\Model\Response\StreamedResponseFactory;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Response\Http\FileFactory;
-use JustBetter\ProductGridExport\Model\Export\ConvertToCsv;
-use JustBetter\ProductGridExport\Model\Response\StreamedResponseFactory;
 use Psr\Log\LoggerInterface;
 
-class GridToCsv extends Action
+class GridToJsonl extends Action
 {
     /**
      * @param Context $context
@@ -18,7 +19,7 @@ class GridToCsv extends Action
      */
     public function __construct(
         Context $context,
-        protected ConvertToCsv $converter,
+        protected ConvertToJsonl $converter,
         protected StreamedResponseFactory $streamedResponseFactory,
         protected LoggerInterface $logger
     ){
@@ -33,26 +34,24 @@ class GridToCsv extends Action
      */
     public function execute()
     {
-        $data = $this->converter->getGenerator();
+        $data = Jsonl::encode($this->converter->getGenerator());
+
         return $this->streamedResponseFactory->create([
             'options' => [
-                'fileName' => 'export.csv',
+                'fileName' => 'export.jsonl',
                 'callback' => function () use ($data) {
-                    $handle = fopen('php://output', 'w');
                     try {
                         foreach ($data as $chunk) {
-                            fputcsv($handle, $chunk);
+                            echo $chunk;
                             ob_flush();
                             flush();
                         }
                     } catch (\Exception $e) {
                         $this->logger->critical($e);
-                    } finally {
-                        fclose($handle);
                     }
                 }
             ]
-        ]);
+        ]
+        );
     }
-
 }
