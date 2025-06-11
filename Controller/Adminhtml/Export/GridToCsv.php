@@ -4,7 +4,6 @@ namespace JustBetter\ProductGridExport\Controller\Adminhtml\Export;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\Response\Http\FileFactory;
 use JustBetter\ProductGridExport\Model\Export\ConvertToCsv;
 use JustBetter\ProductGridExport\Model\Response\StreamedResponseFactory;
 use Psr\Log\LoggerInterface;
@@ -14,7 +13,8 @@ class GridToCsv extends Action
     /**
      * @param Context $context
      * @param ConvertToCsv $converter
-     * @param FileFactory $fileFactory
+     * @param StreamedResponseFactory $streamedResponseFactory
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,

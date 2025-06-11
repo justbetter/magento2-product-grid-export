@@ -7,7 +7,6 @@ use JustBetter\ProductGridExport\Model\Export\ConvertToJsonl;
 use JustBetter\ProductGridExport\Model\Response\StreamedResponseFactory;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\Response\Http\FileFactory;
 use Psr\Log\LoggerInterface;
 
 class GridToJsonl extends Action
@@ -15,7 +14,8 @@ class GridToJsonl extends Action
     /**
      * @param Context $context
      * @param ConvertToCsv $converter
-     * @param FileFactory $fileFactory
+     * @param StreamedResponseFactory $streamedResponseFactory
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,
