@@ -40,6 +40,7 @@ class GridToJsonl extends Action
             'options' => [
                 'fileName' => 'export.jsonl',
                 'callback' => function () use ($data) {
+                    set_time_limit(0);
                     try {
                         foreach ($data as $chunk) {
                             echo $chunk;

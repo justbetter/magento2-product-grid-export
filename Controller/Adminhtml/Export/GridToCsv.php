@@ -38,6 +38,7 @@ class GridToCsv extends Action
             'options' => [
                 'fileName' => 'export.csv',
                 'callback' => function () use ($data) {
+                    set_time_limit(0);
                     $handle = fopen('php://output', 'w');
                     try {
                         foreach ($data as $chunk) {
