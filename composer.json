@@ -18,6 +18,7 @@
         ]
     },
     "require": {
-        "indykoning/php-jsonl": "^1.0"
+        "indykoning/php-jsonl": "^1.0",
+        "justbetter/magento2-core": "^1.0"
     }
 }
