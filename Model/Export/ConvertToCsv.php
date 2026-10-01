@@ -4,29 +4,37 @@ namespace JustBetter\ProductGridExport\Model\Export;
 
 use JustBetter\ProductGridExport\Model\LazySearchResultIterator;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Filesystem\Directory\WriteInterface;
+use Magento\Ui\Component\MassAction\Filter;
 
 class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
 {
     /**
-     * @return \Generator<array>
+     * @var MetadataProvider
+     */
+    protected $metadataProvider;
+
+    /**
+     * Yield the header row followed by one row per product in the grid.
+     *
+     * @return \Generator<int, array<mixed>>
+     * @throws LocalizedException
      */
     public function getGenerator(): \Generator
     {
         $component = $this->filter->getComponent();
 
+        if ($component->getContext()->getRequestParam(Filter::EXCLUDED_PARAM) === 'false') {
+            $this->filter->prepareComponent($component);
+        }
         $this->filter->applySelectionOnTargetProvider();
-        /** @var \Magento\Catalog\Ui\DataProvider\Product\ProductDataProvider $dataProvider */
         $dataProvider = $component->getContext()->getDataProvider();
         $fields = $this->metadataProvider->getFields($component);
 
-        $columnsWithType= $this->metadataProvider->getColumnsWithDataType($component);
-        $page = 1;
-        $searchResult = $dataProvider->getSearchResult()
-            ->setCurPage($page)
-            ->setPageSize($this?->pageSize ?? 200);
+        $columnsWithType = $this->metadataProvider->getColumnsWithDataType($component);
+        $items = new LazySearchResultIterator($dataProvider->getSearchResult(), $this->pageSize ?? 200);
 
         yield $this->metadataProvider->getHeaders($component);
-        $items = LazySearchResultIterator::getGenerator($searchResult);
         foreach ($items as $item) {
             $this->metadataProvider->convertDate($item, $component->getName());
             yield $this->metadataProvider->getRowDataBasedOnColumnType($item, $fields, $columnsWithType, []);
@@ -36,23 +44,27 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
     /**
      * Returns CSV file
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws LocalizedException
      */
     public function getCsvFile()
     {
         $component = $this->filter->getComponent();
 
-        $name = md5(microtime());
-        $file = 'export/'. $component->getName() . $name . '.csv';
+        $name = hash('sha256', microtime());
+        $file = 'export/' . $component->getName() . $name . '.csv';
 
-        $this->directory->create('export');
-        $stream = $this->directory->openFile($file, 'w+');
+        $directory = $this->directory;
+        if (!$directory instanceof WriteInterface) {
+            throw new LocalizedException(__('The export directory is not writable.'));
+        }
+        $directory->create('export');
+        $stream = $directory->openFile($file, 'w+');
         $stream->lock();
 
         $data = $this->getGenerator();
         foreach ($data as $line) {
-             $stream->writeCsv($line);
+            $stream->writeCsv($line);
         }
 
         $stream->unlock();

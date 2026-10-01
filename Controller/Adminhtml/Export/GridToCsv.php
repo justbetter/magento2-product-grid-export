@@ -21,7 +21,7 @@ class GridToCsv extends Action
         protected ConvertToCsv $converter,
         protected StreamedResponseFactory $streamedResponseFactory,
         protected LoggerInterface $logger
-    ){
+    ) {
         parent::__construct($context);
     }
 
@@ -38,22 +38,25 @@ class GridToCsv extends Action
             'options' => [
                 'fileName' => 'export.csv',
                 'callback' => function () use ($data) {
-                    set_time_limit(0);
-                    $handle = fopen('php://output', 'w');
+                    set_time_limit(0); // phpcs:ignore Magento2.Functions.DiscouragedFunction
+                    $handle = fopen('php://output', 'w'); // phpcs:ignore Magento2.Functions.DiscouragedFunction
+                    if ($handle === false) {
+                        $this->logger->critical('Could not open php://output for the product grid CSV export');
+                        return;
+                    }
                     try {
                         foreach ($data as $chunk) {
-                            fputcsv($handle, $chunk);
+                            fputcsv($handle, $chunk); // phpcs:ignore Magento2.Functions.DiscouragedFunction
                             ob_flush();
                             flush();
                         }
                     } catch (\Exception $e) {
                         $this->logger->critical($e);
                     } finally {
-                        fclose($handle);
+                        fclose($handle); // phpcs:ignore Magento2.Functions.DiscouragedFunction
                     }
                 }
             ]
         ]);
     }
-
 }

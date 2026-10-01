@@ -16,8 +16,6 @@ use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Framework\Stdlib\DateTime;
 
 /**
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
- *
  * StreamedResponse represents a streamed HTTP response.
  *
  * A StreamedResponse uses a callback for its content.
@@ -27,15 +25,15 @@ use Magento\Framework\Stdlib\DateTime;
  * can also be used if needed.
  *
  * @see flush()
- *
  * @see \Symfony\Component\HttpFoundation\StreamedResponse
+ * @SuppressWarnings("PHPMD.CookieAndSessionMisuse")
  */
 class StreamedResponse extends Http implements NotCacheableInterface
 {
     private const DEFAULT_RAW_CONTENT_TYPE = 'application/octet-stream';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private array $options = [
         // File name to send to the client
@@ -54,8 +52,8 @@ class StreamedResponse extends Http implements NotCacheableInterface
      * @param DateTime $dateTime
      * @param ConfigInterface $sessionConfig
      * @param Http $response
-     * @param array $options
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     * @param mixed[] $options
+     * @SuppressWarnings("PHPMD.ExcessiveParameterList")
      */
     public function __construct(
         HttpRequest $request,
@@ -77,7 +75,9 @@ class StreamedResponse extends Http implements NotCacheableInterface
     }
 
     /**
-     * @inheritDoc
+     * Send the headers and stream the callback output to the client.
+     *
+     * @return void
      */
     public function sendResponse()
     {
@@ -103,7 +103,6 @@ class StreamedResponse extends Http implements NotCacheableInterface
         if (!$this->request->isHead()) {
             $this->sendCallback();
         }
-        return $this;
     }
 
     /**
