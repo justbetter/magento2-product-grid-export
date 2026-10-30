@@ -18,7 +18,7 @@ class GridToXls extends Action
         Context $context,
         protected ConvertToXls $converter,
         protected FileFactory $fileFactory
-    ){
+    ) {
         parent::__construct($context);
     }
 
@@ -32,5 +32,4 @@ class GridToXls extends Action
     {
         return $this->fileFactory->create('export.xls', $this->converter->getXlsFile(), 'var');
     }
-
 }

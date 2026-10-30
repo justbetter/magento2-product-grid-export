@@ -18,7 +18,7 @@ class GridToXml extends Action
         Context $context,
         protected ConvertToXml $converter,
         protected FileFactory $fileFactory
-    ){
+    ) {
         parent::__construct($context);
     }
 
@@ -32,5 +32,4 @@ class GridToXml extends Action
     {
         return $this->fileFactory->create('export.xml', $this->converter->getXmlFile(), 'var');
     }
-
 }

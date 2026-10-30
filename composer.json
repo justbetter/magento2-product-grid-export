@@ -20,5 +20,38 @@
     "require": {
         "indykoning/php-jsonl": "^1.0",
         "justbetter/magento2-core": "^1.0"
+    },
+    "require-dev": {
+        "bitexpert/phpstan-magento": "^0.42.0",
+        "justbetter/magento2-coding-standard": "^1.0,>=1.0.2",
+        "magento/framework": ">=103.0.7",
+        "magento/magento-coding-standard": ">=40",
+        "magento/module-backend": ">=102.0.7",
+        "magento/module-catalog": ">=104.0.7",
+        "magento/module-eav": ">=102.1.7",
+        "magento/module-store": ">=101.1.7",
+        "magento/module-ui": ">=101.2.7"
+    },
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse --memory-limit='1G'",
+        "phpcs": "vendor/bin/phpcs --colors --standard=vendor/magento/magento-coding-standard/Magento2 -s --exclude=Generic.Files.LineLength --report=full,summary,gitblame --extensions=php,phtml --ignore=./vendor ./",
+        "phpcbf": "vendor/bin/phpcbf --colors --standard=vendor/magento/magento-coding-standard/Magento2 --exclude=Generic.Files.LineLength --extensions=php,phtml --ignore=./vendor ./ || exit 0",
+        "codestyle": [
+            "@phpcbf",
+            "@phpcs"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "magento/composer-dependency-version-audit-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "repositories": {
+        "magento": {
+            "type": "composer",
+            "url": "https://repo-magento-mirror.fooman.co.nz/"
+        }
     }
 }

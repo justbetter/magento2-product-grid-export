@@ -13,7 +13,7 @@ class GridToJsonl extends Action
 {
     /**
      * @param Context $context
-     * @param ConvertToCsv $converter
+     * @param ConvertToJsonl $converter
      * @param StreamedResponseFactory $streamedResponseFactory
      * @param LoggerInterface $logger
      */
@@ -22,7 +22,7 @@ class GridToJsonl extends Action
         protected ConvertToJsonl $converter,
         protected StreamedResponseFactory $streamedResponseFactory,
         protected LoggerInterface $logger
-    ){
+    ) {
         parent::__construct($context);
     }
 
@@ -40,10 +40,10 @@ class GridToJsonl extends Action
             'options' => [
                 'fileName' => 'export.jsonl',
                 'callback' => function () use ($data) {
-                    set_time_limit(0);
+                    set_time_limit(0); // phpcs:ignore Magento2.Functions.DiscouragedFunction
                     try {
                         foreach ($data as $chunk) {
-                            echo $chunk;
+                            echo $chunk; // phpcs:ignore Magento2.Security.LanguageConstruct.DirectOutput
                             ob_flush();
                             flush();
                         }
@@ -52,7 +52,6 @@ class GridToJsonl extends Action
                     }
                 }
             ]
-        ]
-        );
+        ]);
     }
 }

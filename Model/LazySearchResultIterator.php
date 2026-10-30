@@ -2,20 +2,47 @@
 
 namespace JustBetter\ProductGridExport\Model;
 
-use Exception;
+use Generator;
 use Iterator;
 use Magento\Eav\Model\Entity\Collection\AbstractCollection;
+use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * Iterates a collection page by page, so only one page of items is loaded at a time.
+ *
+ * @implements Iterator<int, mixed>
+ */
 class LazySearchResultIterator implements Iterator
 {
+    /**
+     * @var Generator<int, mixed>
+     */
+    protected Generator $generator;
 
-    protected $generator;
+    /**
+     * Start iterating the search result from its first page.
+     *
+     * @param object $searchResult
+     * @param int $pageSize
+     * @throws LocalizedException
+     */
+    public function __construct(object $searchResult, int $pageSize)
+    {
+        if (!$searchResult instanceof AbstractCollection) {
+            throw new LocalizedException(__('The product grid export requires a collection based data provider.'));
+        }
 
-    public function __construct(AbstractCollection $collection) {
-        $this->generator = static::getGenerator($collection);
+        $searchResult->setCurPage(1)->setPageSize($pageSize);
+        $this->generator = $this->getGenerator($searchResult);
     }
 
-    public static function getGenerator(AbstractCollection $collection)
+    /**
+     * Yield the items of every page, starting at the current page of the collection.
+     *
+     * @param AbstractCollection $collection
+     * @return Generator<int, mixed>
+     */
+    protected function getGenerator(AbstractCollection $collection): Generator
     {
         $lastPage = (int) $collection->getLastPageNumber();
 
@@ -28,27 +55,43 @@ class LazySearchResultIterator implements Iterator
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function rewind(): void
     {
         $this->generator->rewind();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function valid(): bool
     {
         return $this->generator->valid();
     }
 
-    public function current(): mixed {
+    /**
+     * @inheritDoc
+     */
+    public function current(): mixed
+    {
         return $this->generator->current();
     }
 
-    public function key(): mixed {
+    /**
+     * @inheritDoc
+     */
+    public function key(): mixed
+    {
         return $this->generator->key();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function next(): void
     {
         $this->generator->next();
     }
 }
-?>

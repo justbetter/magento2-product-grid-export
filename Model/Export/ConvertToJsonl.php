@@ -27,48 +27,49 @@ class ConvertToJsonl
         protected Filesystem $filesystem,
         protected Filter $filter,
         protected MetadataProvider $metadataProvider,
-        protected $pageSize = 200
+        protected int $pageSize = 200
     ) {
         $this->directory = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
         $this->metadataProvider = $metadataProvider;
     }
 
     /**
-     * @return \Generator<array>
+     * Yield one row per product in the grid, keeping multi-value columns as arrays.
+     *
+     * @return \Generator<int, array<mixed>>
+     * @throws LocalizedException
      */
     public function getGenerator(): \Generator
     {
         $component = $this->filter->getComponent();
+        if ($component->getContext()->getRequestParam(Filter::EXCLUDED_PARAM) === 'false') {
+            $this->filter->prepareComponent($component);
+        }
         $this->filter->applySelectionOnTargetProvider();
 
         $dataProvider = $component->getContext()->getDataProvider();
         $fields = $this->metadataProvider->getFields($component);
-        $columnsWithType= $this->metadataProvider->getColumnsWithDataType($component);
-        $page = 1;
+        $columnsWithType = $this->metadataProvider->getColumnsWithDataType($component);
 
-        $searchResult = $dataProvider->getSearchResult()
-            ->setCurPage($page)
-            ->setPageSize($this?->pageSize ?? 200);
-
-        $items = LazySearchResultIterator::getGenerator($searchResult);
+        $items = new LazySearchResultIterator($dataProvider->getSearchResult(), $this->pageSize);
         foreach ($items as $item) {
             $this->metadataProvider->convertDate($item, $component->getName());
-            yield $this->metadataProvider->getRowDataBasedOnColumnType($item, $fields, $columnsWithType, ['no_arrays' => false]);;
+            yield $this->metadataProvider->getRowDataBasedOnColumnType($item, $fields, $columnsWithType, ['no_arrays' => false]);
         }
     }
 
     /**
      * Returns jsonl (json-lines) file
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws LocalizedException
      */
     public function getJsonlFile()
     {
         $component = $this->filter->getComponent();
 
-        $name = md5(microtime());
-        $file = 'export/'. $component->getName() . $name . '.jsonl';
+        $name = hash('sha256', microtime());
+        $file = 'export/' . $component->getName() . $name . '.jsonl';
 
         $this->directory->create('export');
         /** @var \Magento\Framework\Filesystem\File\WriteInterface $stream */

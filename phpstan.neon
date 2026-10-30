@@ -1,0 +1,10 @@
+includes:
+    - ./vendor/justbetter/magento2-coding-standard/phpstan.neon
+
+parameters:
+    paths:
+        - .
+    excludePaths:
+        - vendor
+    level: 8
+    reportUnmatchedIgnoredErrors: false
